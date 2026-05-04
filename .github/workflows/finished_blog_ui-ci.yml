@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: ./finished/blog-ui/package-lock.json
 
       - name: Install dependencies
-        run: if [ -f package-lock.json ]; then npm ci || npm install; else npm install; fi
+        run: npm ci --legacy-peer-deps
 
       - name: Build
         run: npm run build
@@ -36,3 +36,5 @@ jobs:
         # Remove 'continue-on-error' when your tests are stable
         run: npm test --if-present -- --watchAll=false --passWithNoTests
         continue-on-error: true
+      - name: (Test failures ignored)
+        run: echo "Tests completed – failures ignored by DevOpsGen"
