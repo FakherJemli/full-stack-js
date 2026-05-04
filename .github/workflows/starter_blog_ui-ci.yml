@@ -18,6 +18,12 @@ jobs:
     defaults:
       run:
         working-directory: ./starter/blog-ui
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,12 +33,18 @@ jobs:
           cache-dependency-path: ./starter/blog-ui/package-lock.json
 
       - name: Install dependencies
-        run: if [ -f package-lock.json ]; then npm ci || npm install; else npm install; fi
+        run: npm ci --legacy-peer-deps
 
       - name: Build
         run: npm run build
 
       - name: Test
+        env:
+          MYSQL_HOST: mysql
+          MYSQL_PORT: 3306
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         # Remove 'continue-on-error' when your tests are stable
         run: npm test --if-present -- --watchAll=false --passWithNoTests
         continue-on-error: true
+      - name: (Test failures ignored)
+        run: echo "Tests completed – failures ignored by DevOpsGen"
